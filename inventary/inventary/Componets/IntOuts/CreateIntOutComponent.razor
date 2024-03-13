@@ -1,0 +1,129 @@
+﻿@using Bussiness
+@using Entities
+@inject B_Product Bproduct
+@inject B_Storage Bstorage
+@inject B_Warehouse Bwarehouse
+@inject IIntputOutput Bintout
+
+<div class="form-group">
+    <label>Bodega:</label>
+    <select class="form-control" @onchange="Onchangewarehouse">
+        <option value="0">seleccione una bodega...</option>
+        @foreach (var warehouse in warehouses)
+        {
+            <option value="@warehouse.Id">@warehouse.WarehouseName</option>
+        }
+    </select>
+</div>
+<hr />
+<EditForm Model="oIntOut">
+    <div class="form-group">
+        <label>Productos en Bodega</label>
+        <InputSelect @bind-Value="oIntOut.StorageId" class="form-control">
+            <option value="0">seleccione un producto...</option>
+            @foreach (var storage in storages)
+            {
+                <option value="@storage.Id">@storage.Product.Name</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="form-group">
+        <label>Cantidad:</label>
+        <InputNumber @bind-Value="oIntOut.Quantity" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Es una Entrada?</label>
+        <InputCheckbox @bind-Value="oIntOut.IsInput" class="form-control" />
+        <p class="text-center h4 mt-4">Si es una entrada marque la casilla si no dejela vacia</p>
+    </div>
+    <div class="text-center">
+        <input class="btn btn-primary" type="button" value="@buttonValue" @onclick="SaveIntOut" />
+    </div>
+</EditForm>
+<hr />
+<div class="mt-5"> 
+    <p class="text-center h4">@messaje</p>
+</div>
+
+@code {
+    List<WarehouseEntity> warehouses = new List<WarehouseEntity>();
+    List<StorageEntity> storages = new List<StorageEntity>();
+    InputOutputEntity oIntOut = new InputOutputEntity();
+    ProductsEntity oProduct = new ProductsEntity();
+    StorageEntity ostorage = new StorageEntity();
+
+    string messaje;
+
+    string buttonValue => oIntOut.IsInput ? "Reguistrar Entrada" : "Reguistrar Salida";
+
+    protected override async Task OnInitializedAsync()
+    {
+        warehouses = await Bwarehouse.WarehouseList();
+    }
+
+    private void Onchangewarehouse(ChangeEventArgs e)
+    {
+        var idWarehouse = e.Value.ToString();
+        storages = Bstorage.StorageProductsByWarehouse(idWarehouse);
+
+    }
+
+    public string warehouseselect(ChangeEventArgs e)
+    {
+        return e.Value.ToString();
+    }
+
+
+    private void SaveIntOut()
+    {
+        ostorage = storages.LastOrDefault(s => s.Id == oIntOut.StorageId);
+        oProduct = ostorage.Product;
+        if (oIntOut.IsInput)
+        {
+            ostorage.PartialQuantity = ostorage.PartialQuantity + oIntOut.Quantity;
+            Bstorage.UpdateAlmacen(ostorage);
+
+            oProduct.TotalQuantity = oProduct.TotalQuantity + oIntOut.Quantity;
+            Bproduct.UpdateProducto(oProduct);
+
+            messaje = $"El producto {oProduct.Name} ha sido actualizado";
+
+
+            oIntOut.Id = Guid.NewGuid().ToString();
+            oIntOut.InOutDate = DateTime.Now.ToString();
+            Bintout.CrearEntradasYsalidas(oIntOut); 
+        }
+        else
+        {
+            if (IsBiggerThanZero(oIntOut.Quantity, ostorage.PartialQuantity))
+            {
+                ostorage.PartialQuantity = ostorage.PartialQuantity - oIntOut.Quantity;
+                Bstorage.UpdateAlmacen(ostorage);
+
+                oProduct.TotalQuantity = oProduct.TotalQuantity - oIntOut.Quantity;
+                Bproduct.UpdateProducto(oProduct); 
+                messaje = $"El producto {oProduct.Name} ha sido actualizado";
+
+                oIntOut.Id = Guid.NewGuid().ToString();
+                oIntOut.InOutDate = DateTime.Now.ToString();
+                Bintout.CrearEntradasYsalidas(oIntOut); 
+            }
+            else
+            {
+                messaje = $"No existe la cantidad suficiente en bodega para el producto {oProduct.Name}";
+            }
+
+        }
+    }
+
+    private bool IsBiggerThanZero(int quantity, int storageQuantity)
+    {
+        if (storageQuantity >= quantity)
+        {
+            return true; 
+        }
+
+        return false;
+    }
+}
+ 

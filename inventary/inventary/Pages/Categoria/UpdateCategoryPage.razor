@@ -1,0 +1,16 @@
+﻿@page "/categoria/Actualizar/{IdCategory}"
+<h1>Actualizacion de Categoria</h1>
+<hr />
+<h3>Ingresa el Nuevo nombre de la categoria</h3>
+<hr />
+<UpdateCategoryComponent IdCategory="@IdCategory"/>
+
+@code {
+    [Parameter]
+    public string IdCategory { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        IdCategory = IdCategory;
+    }
+}

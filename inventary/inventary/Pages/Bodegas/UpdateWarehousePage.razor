@@ -1,0 +1,16 @@
+﻿@page "/bodega/Actualizar/{idWarehouse}"
+<hr />
+<h1>Actualizacion de Bodega</h1>
+<hr />
+<UpdateWarehouseComponent idWarehouse="@idWarehouse"/>
+
+
+@code{
+    [Parameter]
+    public string idWarehouse { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        idWarehouse = idWarehouse;
+    }
+}

@@ -1,0 +1,71 @@
+﻿@using Bussiness
+@using Entities
+@inject B_Product Bproduct
+@inject B_Category Bcategory
+
+
+<hr />
+<select class="form-control" @onchange="CategoryChange">
+    <option value="0">seleccione categoria..</option>
+    @foreach (var category in categories)
+   {
+       <option value="@category.Id">@category.CategoryName</option>
+   }
+</select>
+<hr />
+
+<div class="table-responsive">
+    <table class="table table-hover table-bordered table-dark">
+        <thead>
+            <tr>
+                <th>Referencia</th>
+                <th>Nombre producto</th>
+                <th>Descripción del producto.</th>
+                <th>Categoria</th>
+                <th>Cantidad</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var product in tmpproductos)
+            {
+                <tr>
+                    <td>@product.Id</td>
+                    <td>@product.Name</td>
+                    <td>@product.Description</td>
+                    <td>@product.CategoryId</td>
+                    <td>@product.TotalQuantity</td>
+                    <td><a href="productos/actualizar/@product.Id">Editar o Actualizar</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    List<ProductsEntity> productos = new List<ProductsEntity>();
+    List<ProductsEntity> tmpproductos = new List<ProductsEntity>();
+    List<CategoryEntity> categories = new List<CategoryEntity>();
+    string message;
+    protected override async Task OnInitializedAsync()
+    {
+        productos = await Bproduct.ProductList();
+        tmpproductos = productos;
+        categories = await Bcategory.CategoryList();
+    }
+
+    private void CategoryChange(ChangeEventArgs e)
+    {
+        message = e.Value.ToString();
+        if (message == "0")
+        {
+            tmpproductos = productos;
+        }
+        else
+        {
+           tmpproductos = productos.Where(c => c.CategoryId == e.Value.ToString()).ToList(); 
+        }
+        
+    }
+
+}

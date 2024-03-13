@@ -1,0 +1,37 @@
+﻿@using Bussiness
+@using Entities
+@inject B_Warehouse Bwarehouse
+
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th>Referencia</th>
+                <th>Nombre Bodega</th>
+                <th>Direccion Bodega</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var warehouse in warehouses)
+            {
+                <tr>
+                    <td>@warehouse.Id</td>
+                    <td>@warehouse.WarehouseName</td>
+                    <td>@warehouse.WarehouseAddress</td>
+                    <td><a href="bodega/actualizar/@warehouse.Id">Editar o Actualizar</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    List<WarehouseEntity> warehouses = new List<WarehouseEntity>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        warehouses = await Bwarehouse.WarehouseList();
+    }
+
+}

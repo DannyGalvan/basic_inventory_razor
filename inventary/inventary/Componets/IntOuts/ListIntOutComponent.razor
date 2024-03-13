@@ -1,0 +1,48 @@
+﻿@using Bussiness
+@using Entities
+@inject IIntputOutput Bintout
+@using System.Linq
+@using System.Data
+
+
+<div class="table-responsive">
+    <table class="table table-hover table-bordered table-dark">
+        <thead>
+            <tr>
+                <th>Referencia</th>                
+                <th>Cantidad</th>
+                <th>Producto</th>
+                <th>Bodega</th>
+                <th>Acción</th>
+                <th>Fecha - Hora</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                @foreach(var IntOut in IntOuts)
+                {
+                    string IsInput = IntOut.IsInput ? "Entrada" : "Salida";
+                    <tr>
+                        <td>@IntOut.Id.Substring(0,7)...</td>                      
+                        <td>@IntOut.Quantity</td>                    
+                        <td>@IntOut.Storage.Product.Name</td>
+                        <td>@IntOut.Storage.Warehouse.WarehouseName</td>
+                        <td>@IsInput</td>
+                        <td>@IntOut.InOutDate</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+
+@code {
+
+    List<InputOutputEntity> IntOuts = new List<InputOutputEntity>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        IntOuts = await Bintout.IntOutList();
+    }
+}

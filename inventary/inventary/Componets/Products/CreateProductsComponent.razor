@@ -1,0 +1,56 @@
+﻿@using Bussiness
+@using Entities
+@inject B_Product Bproduct
+@inject B_Category Bcategory
+
+@inject NavigationManager NavManager
+
+<div class="pb-5">
+    <EditForm Model ="oProducto"> 
+        <div class="form-group">
+            <label>Referencia:</label>
+            <InputText @bind-Value="oProducto.Id" class="form-control"></InputText>
+        </div>
+         <div class="form-group">
+            <label>Nombre del Producto:</label>
+            <InputText @bind-Value="oProducto.Name" class="form-control"></InputText>
+        </div>
+         <div class="form-group">
+            <label>Descripcion:</label>
+            <InputTextArea @bind-Value="oProducto.Description" class="form-control"></InputTextArea>
+        </div>
+        <div class="form-group">
+            <label>Categoria:</label>
+            <InputSelect @bind-Value="oProducto.CategoryId" class="form-control">
+                <option value="0">Seleccione una Categoria</option>
+                @foreach (var category in categories)
+               {
+                   <option value="@category.Id">@category.CategoryName</option>
+               }
+            </InputSelect>
+        </div>
+        <hr />
+        <div class="text-center mt-3">
+            <input class="btn btn-primary" type="button" value="Guardar Producto" @onclick="SaveProduct"/>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    ProductsEntity oProducto = new ProductsEntity();
+
+    List<CategoryEntity> categories = new List<CategoryEntity>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await Bcategory.CategoryList();
+    }
+
+    private void SaveProduct()
+    {
+        Bproduct.CrearProducto(oProducto);
+        NavManager.NavigateTo("productos/lista");
+    }
+
+}

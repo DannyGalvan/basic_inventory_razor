@@ -1,0 +1,70 @@
+﻿@using Bussiness
+@using Entities
+@inject B_Product Bproduct
+@inject B_Category Bcategory
+@inject B_Storage Bstorage
+@inject B_Warehouse Bwarehouse
+@inject NavigationManager NavManager
+
+<EditForm Model="oStorage">
+    <div class="form-group">
+        <label>Bodega:</label>
+        <InputSelect @bind-Value="oStorage.WarehouseId" class="form-control">
+            <option value="0">Selecciones una bodega..</option>
+            @foreach (var warehouse in warehouses)
+            {
+                <option value="@warehouse.Id">@warehouse.WarehouseName</option>
+            }
+        </InputSelect>
+    </div>
+    <div class="form-group">
+        <label>Producto:</label>
+        <InputSelect @bind-Value="oStorage.ProductId" class="form-control">
+        <option value="0">Seleccione un producto</option>
+        @foreach (var product in products)
+        {
+            <option value="@product.Id">@product.Name</option>
+        }
+        </InputSelect>
+    </div>
+    <div class="text-center">
+        <input class="btn btn-primary" type="button" value="Almacenar Producto" @onclick="SaveStorage"/>
+    </div>
+</EditForm>
+<hr />
+<div class="mt-5"> 
+    <p class="text-center h4">@messaje</p>
+</div>
+
+
+@code {
+    StorageEntity oStorage = new StorageEntity();
+    List<WarehouseEntity> warehouses = new List<WarehouseEntity>();
+    List<ProductsEntity> products = new List<ProductsEntity>();
+
+    string messaje;
+
+    protected override async Task OnInitializedAsync()
+    {
+        warehouses = await Bwarehouse.WarehouseList();
+        products = await Bproduct.ProductList();
+    }
+
+    private void SaveStorage()
+    {
+        oStorage.Id = $"{oStorage.WarehouseId}-{oStorage.ProductId}";
+
+        if (!Bstorage.IsProductoInWarehouse(oStorage.Id))
+        {
+            oStorage.LastUpdate = DateTime.Now.ToString();
+            Bstorage.CrearAlmacen(oStorage);
+            messaje = "producto reguistrado y/o almacenado";
+        }
+        else
+        {
+            messaje = "producto ya reguistrado y/o existente en bodega";
+        }
+
+    }
+
+}

@@ -1,0 +1,31 @@
+﻿@using Bussiness
+@using Entities
+@inject B_Warehouse Bwarehouse
+@inject NavigationManager NavManager
+
+<EditForm Model="oWarehouse">
+    <div class="form-group">
+        <label>Nombre:</label>
+        <InputText @bind-Value="oWarehouse.WarehouseName" type="text" class="form-control" Required></InputText>
+    </div>
+    <div class="form-group">
+        <label>Direccion:</label>
+        <InputText @bind-Value="oWarehouse.WarehouseAddress" class="form-control" Required></InputText>
+    </div>
+     <div class="text-center">
+        <input class="btn btn-primary" type="button" value="Crear Bodega" @onclick="SaveWarehouse"/>
+    </div>
+</EditForm>
+
+
+@code {
+    WarehouseEntity oWarehouse = new WarehouseEntity();
+
+    private void SaveWarehouse()
+    {
+        oWarehouse.Id = Guid.NewGuid().ToString();
+        Bwarehouse.CrearBodega(oWarehouse);
+        NavManager.NavigateTo("bodega/lista");
+    }
+
+}

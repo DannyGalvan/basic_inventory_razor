@@ -1,0 +1,46 @@
+﻿@using Bussiness
+@using Entities
+@inject B_Warehouse Bwarehouse
+
+
+<div class="alert alert-warning alert-dismissible fade show" role="alert" style="display:@messaje">
+  <strong>Bodega Actualizada Con exito!!</strong>
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<EditForm Model="oWarehouse">
+    <div class="form-group">
+        <label>Nombre</label>
+        <InputText class="form-control" @bind-Value="oWarehouse.WarehouseName" />
+    </div>
+    <div class="form-group">
+        <label>Dirección</label>
+        <InputText class="form-control" @bind-Value="oWarehouse.WarehouseAddress" />
+    </div>
+     <div class="text-center">
+        <input class="btn btn-success" type="button" value="Actualizar Bodega" @onclick="UpdateWarehouse"/>
+    </div>
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public string idWarehouse { get; set; }
+
+    WarehouseEntity oWarehouse = new WarehouseEntity();
+
+    string messaje;
+
+    protected override async Task OnInitializedAsync()
+    {
+        oWarehouse = await Bwarehouse.WarehouseById(idWarehouse);
+    }
+
+    private void UpdateWarehouse()
+    {
+        Bwarehouse.UpdateBodega(oWarehouse);
+        messaje = "block";
+    }
+}
